@@ -64,7 +64,7 @@ public class ClosedQueue_main {
 		
 		//Simulation
 		ClosedQueue_simulation qsim = new ClosedQueue_simulation(f, 1000000, K, N, mu);
-		System.out.println("Simulation : 平均系内人数 = "+Arrays.deepToString(qsim.getSimulation()));
+		System.out.println("Simulation : (平均系内人数, 平均待ち人数) = "+Arrays.deepToString(qsim.getSimulation()));
 		System.out.println("Simulation : (系内時間,系内時間分散,最大待ち人数) = "+Arrays.deepToString(qsim.getEvaluation()));
 	}
 

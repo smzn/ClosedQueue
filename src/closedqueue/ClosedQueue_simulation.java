@@ -40,7 +40,8 @@ public class ClosedQueue_simulation {
 		}
 		service[0] = this.getExponential(mu[0]); //先頭客のサービス時間設定
 		double total_queue[] = new double[k]; //各ノードの延べ系内人数
-		double result[][] = new double[1][k];
+		double total_queuelength[] = new double[k]; //待ち人数
+		double result[][] = new double[2][k];
 		
 		while(elapse < time) {
 			double mini_service = 100000; //最小のサービス時間
@@ -58,6 +59,8 @@ public class ClosedQueue_simulation {
 			for(int i = 0; i < k; i++) { //ノードiから退去
 				total_queue[i] += queue[i] * mini_service;
 				if( queue[i] > 0) service[i] -= mini_service;
+				if( queue[i] > 0 ) total_queuelength[i] += ( queue[i] - 1 ) * mini_service;
+				else if ( queue[i] == 0 ) total_queuelength[i] += queue[i] * mini_service;
 			}
 			event[mini_index].add("departure");
 			queuelength[mini_index].add(queue[mini_index]);
@@ -88,6 +91,7 @@ public class ClosedQueue_simulation {
 		
 		for(int i = 0; i < k; i++) {
 			result[0][i] = total_queue[i] / time;
+			result[1][i] = total_queuelength[i] / time;
 		}
 		return result;
 		
