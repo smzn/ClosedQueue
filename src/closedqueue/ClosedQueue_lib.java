@@ -135,9 +135,9 @@ public class ClosedQueue_lib {
 				R[i] = (L[i] + 1)/mu[i];
 			}
 			
-			for(int i = 0; i < K; i++){
+			/*for(int i = 0; i < K; i++){
 				System.out.println("R["+n+","+i+"]="+R[i]);
-			}
+			}*/
 			
 			//Step4 Lambdaの更新
 			for(int i = 0; i < K;i++){
@@ -147,18 +147,18 @@ public class ClosedQueue_lib {
 				else lambda[i] = alpha[i]*lambda[0];
 			}
 			
-			for(int i = 0; i < K; i++){
+			/*for(int i = 0; i < K; i++){
 				System.out.println("lambda["+n+","+i+"]="+lambda[i]);
-			}
+			}*/
 			
 			//Step5 Lの更新
 			for(int i = 0; i < K; i++){
 				L[i] = lambda[i]*R[i];
 			}
 			
-			for(int i = 0; i < K; i++){
+			/*for(int i = 0; i < K; i++){
 				System.out.println("L["+n+","+i+"]="+L[i]);
-			}
+			}*/
 			
 		}
 	}

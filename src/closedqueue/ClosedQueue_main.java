@@ -1,5 +1,7 @@
 package closedqueue;
 
+import java.util.Arrays;
+
 public class ClosedQueue_main {
 
 	public static void main(String[] args) {
@@ -14,14 +16,16 @@ public class ClosedQueue_main {
 				
 		ClosedQueue_lib clib = new ClosedQueue_lib(1,1,1,d,p, mu, N, K);
 		double f[][] = new double [p.length][p.length];
-		f = clib.calcGravity();
+		f = clib.calcGravity(); //fは推移確率行列
 		
+		/*
 		for(int i = 0; i < p.length; i++){
 			for(int j = 0; j < p.length; j++){
 				System.out.print("f["+i+"]["+j+"]="+f[i][j]);
 			}
 			System.out.println("");
 		}
+		*/
 		
 		//トラフィック方程式を解く準備
 		double ff[][] = new double[p.length -1][p.length -1];
@@ -38,6 +42,8 @@ public class ClosedQueue_main {
 		for(int i = 0;i < p.length -1; i++){
 			bb[i] = -f[0][i+1];
 		}
+		
+		/*
 		for(int i = 0; i < p.length-1; i++){
 			for(int j = 0; j < p.length-1; j++){
 				System.out.print("ff["+i+"]["+j+"]="+ff[i][j]);
@@ -47,6 +53,7 @@ public class ClosedQueue_main {
 		for(int i = 0; i < p.length-1; i++){
 			System.out.println("bb["+i+"]="+bb[i]);
 		}
+		*/
 		
 		//alphaを求める
 		clib.setA(ff);
@@ -58,9 +65,10 @@ public class ClosedQueue_main {
 			if( i == 0) alpha1[i] = 1;
 			else alpha1[i] = alpha[i-1];
 		}
+		/*
 		for(int i = 0; i < alpha1.length; i++){
 			System.out.println("alpha1["+i+"]="+alpha1[i]);
-		}
+		}*/
 		
 		clib.setAlpha(alpha1);
 		
@@ -69,12 +77,23 @@ public class ClosedQueue_main {
 		double[] L = clib.getL();
 		double[] R = clib.getR();
 		double[] lambda = clib.getLambda();
-		
+		/*
 		for(int i = 0;i < K; i++){
 			System.out.println("L["+i+"]="+L[i]);
 			System.out.println("R["+i+"]="+R[i]);
 			System.out.println("Lambda["+i+"]="+lambda[i]);
-		}
+		}*/
+		
+		//理論値
+		System.out.println("推移確率行列" +Arrays.deepToString(f));
+		System.out.println("トラフィック方程式解" +Arrays.toString(alpha1));
+		System.out.println("理論値 : 平均系内人数 = " +Arrays.toString(L));
+		System.out.println("理論値 : 平均系内時間 = " +Arrays.toString(R));
+		System.out.println("理論値 : スループット = " +Arrays.toString(lambda));
+		
+		//Simulation
+		ClosedQueue_simulation qsim = new ClosedQueue_simulation(f, 1000000, K, N, mu);
+		System.out.println("Simulation : 平均系内人数 = "+Arrays.deepToString(qsim.getSimulation()));
 	}
 
 }
