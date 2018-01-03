@@ -55,6 +55,7 @@ public class ClosedQueue_main {
 		double[] lambda = clib.getLambda();
 		
 		//理論値
+		System.out.println("重力モデルパラメタ" +Arrays.deepToString(d));
 		System.out.println("サービス率" +Arrays.toString(mu));
 		System.out.println("推移確率行列" +Arrays.deepToString(f));
 		System.out.println("トラフィック方程式解" +Arrays.toString(alpha1));
@@ -66,6 +67,7 @@ public class ClosedQueue_main {
 		ClosedQueue_simulation qsim = new ClosedQueue_simulation(f, 1000000, K, N, mu);
 		System.out.println("Simulation : (平均系内人数, 平均待ち人数) = "+Arrays.deepToString(qsim.getSimulation()));
 		System.out.println("Simulation : (系内時間,系内時間分散,最大待ち人数) = "+Arrays.deepToString(qsim.getEvaluation()));
+		System.out.println("Simulation : (時間割合) = "+Arrays.deepToString(qsim.getTimerate()));
 	}
 
 }

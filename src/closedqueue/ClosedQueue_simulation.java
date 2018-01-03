@@ -13,6 +13,7 @@ public class ClosedQueue_simulation {
 	ArrayList<Double> eventtime[]; 
 	ArrayList<String> event[];
 	ArrayList<Integer> queuelength[];
+	private double timerate[][];
 	
 	public ClosedQueue_simulation(double[][] p, int time, int k, int n, double[] mu) {
 		this.p = p;
@@ -26,6 +27,7 @@ public class ClosedQueue_simulation {
 		for(int i = 0; i < eventtime.length; i++) eventtime[i] = new ArrayList<Double>();
 		for(int i = 0; i < event.length; i++) event[i] = new ArrayList<String>();
 		for(int i = 0; i < queuelength.length; i++) queuelength[i] = new ArrayList<Integer>();
+		timerate = new double[k][n+1]; //0人の場合も入る
 	}
 	
 	public double[][] getSimulation() {
@@ -61,6 +63,7 @@ public class ClosedQueue_simulation {
 				if( queue[i] > 0) service[i] -= mini_service;
 				if( queue[i] > 0 ) total_queuelength[i] += ( queue[i] - 1 ) * mini_service;
 				else if ( queue[i] == 0 ) total_queuelength[i] += queue[i] * mini_service;
+				timerate[i][queue[i]] += mini_service;
 			}
 			event[mini_index].add("departure");
 			queuelength[mini_index].add(queue[mini_index]);
@@ -85,8 +88,7 @@ public class ClosedQueue_simulation {
 			eventtime[destination_index].add(elapse); //(移動時間0)
 			//推移先で待っている客がいなければサービス時間設定(即時サービス)
 			if(queue[destination_index] == 0) service[destination_index] = this.getExponential(mu[destination_index]);
-			queue[destination_index] ++;
-			
+			queue[destination_index] ++;			
 		}
 		
 		for(int i = 0; i < k; i++) {
@@ -140,6 +142,14 @@ public class ClosedQueue_simulation {
 			result[2][i] = maxLength[i];
 		}
 		return result;
+	}
+	
+	public double[][] getTimerate() {
+		for(int k = 0; k < this.k; k++) {
+			for(int i = 0; i< timerate[k].length; i++) timerate[k][i] /= time ;
+			for(int i = 0; i< timerate[k].length; i++) timerate[k][i] *= 100 ;
+		}
+		return timerate;
 	}
 		
 	//指数乱数発生
