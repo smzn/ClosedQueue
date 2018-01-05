@@ -14,6 +14,7 @@ public class ClosedQueue_simulation {
 	ArrayList<String> event[];
 	ArrayList<Integer> queuelength[];
 	private double timerate[][];
+	private double timerate2[][];
 	
 	public ClosedQueue_simulation(double[][] p, int time, int k, int n, double[] mu) {
 		this.p = p;
@@ -28,6 +29,7 @@ public class ClosedQueue_simulation {
 		for(int i = 0; i < event.length; i++) event[i] = new ArrayList<String>();
 		for(int i = 0; i < queuelength.length; i++) queuelength[i] = new ArrayList<Integer>();
 		timerate = new double[k][n+1]; //0人の場合も入る
+		timerate2 = new double[n][k+1];
 	}
 	
 	public double[][] getSimulation() {
@@ -65,6 +67,15 @@ public class ClosedQueue_simulation {
 				else if ( queue[i] == 0 ) total_queuelength[i] += queue[i] * mini_service;
 				timerate[i][queue[i]] += mini_service;
 			}
+			//各ノードでの人数割合(同時滞在人数) 
+			for(int i = 0; i < n; i++) {
+				int totalnumber = 0;
+				for(int j = 0; j < queue.length; j++) {
+					if(queue[j] == i) totalnumber ++;
+				}
+				timerate2[i][totalnumber] += mini_service;
+			}
+			
 			event[mini_index].add("departure");
 			queuelength[mini_index].add(queue[mini_index]);
 			queue[mini_index] --;
@@ -152,7 +163,15 @@ public class ClosedQueue_simulation {
 		return timerate;
 	}
 		
-	//指数乱数発生
+	public double[][] getTimerate2() {
+		for(int n = 0; n < this.n; n++) {
+			for(int i = 0; i< timerate2[n].length; i++) timerate2[n][i] /= time ;
+			for(int i = 0; i< timerate2[n].length; i++) timerate2[n][i] *= 100 ;
+		}
+		return timerate2;
+	}
+
+		//指数乱数発生
 		public double getExponential(double param) {
 			return - Math.log(1 - rnd.nextDouble()) / param;
 		}

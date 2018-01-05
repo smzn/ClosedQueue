@@ -68,6 +68,7 @@ public class ClosedQueue_main {
 		System.out.println("Simulation : (平均系内人数, 平均待ち人数) = "+Arrays.deepToString(qsim.getSimulation()));
 		System.out.println("Simulation : (系内時間,系内時間分散,最大待ち人数) = "+Arrays.deepToString(qsim.getEvaluation()));
 		System.out.println("Simulation : (時間割合) = "+Arrays.deepToString(qsim.getTimerate()));
+		System.out.println("Simulation : (同時時間割合) = "+Arrays.deepToString(qsim.getTimerate2()));
 	}
 
 }
