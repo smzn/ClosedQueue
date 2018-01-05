@@ -94,6 +94,7 @@ public class ClosedQueue_simulation {
 					break;
 				}
 			}
+			if( destination_index == -1) destination_index = p[0].length -1;
 			event[destination_index].add("arrival");
 			queuelength[destination_index].add(queue[destination_index]);
 			eventtime[destination_index].add(elapse); //(移動時間0)
