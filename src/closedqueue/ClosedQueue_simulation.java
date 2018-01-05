@@ -1,7 +1,10 @@
 package closedqueue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
+
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 public class ClosedQueue_simulation {
 	
@@ -15,6 +18,7 @@ public class ClosedQueue_simulation {
 	ArrayList<Integer> queuelength[];
 	private double timerate[][];
 	private double timerate2[][];
+	ArrayList<Integer> timequeue[];
 	
 	public ClosedQueue_simulation(double[][] p, int time, int k, int n, double[] mu) {
 		this.p = p;
@@ -25,9 +29,11 @@ public class ClosedQueue_simulation {
 		eventtime = new ArrayList[k];
 		event = new ArrayList[k];
 		queuelength = new ArrayList[k];
+		timequeue = new ArrayList[k];
 		for(int i = 0; i < eventtime.length; i++) eventtime[i] = new ArrayList<Double>();
 		for(int i = 0; i < event.length; i++) event[i] = new ArrayList<String>();
 		for(int i = 0; i < queuelength.length; i++) queuelength[i] = new ArrayList<Integer>();
+		for(int i = 0; i < timequeue.length; i++) timequeue[i] = new ArrayList<Integer>();
 		timerate = new double[k][n+1]; //0人の場合も入る
 		timerate2 = new double[n][k+1];
 	}
@@ -75,6 +81,8 @@ public class ClosedQueue_simulation {
 				}
 				timerate2[i][totalnumber] += mini_service;
 			}
+			//イベント時間での待ち人数を登録
+			for(int i = 0; i < k; i++) timequeue[i].add(queue[i]);
 			
 			event[mini_index].add("departure");
 			queuelength[mini_index].add(queue[mini_index]);
@@ -175,6 +183,24 @@ public class ClosedQueue_simulation {
 		//指数乱数発生
 		public double getExponential(double param) {
 			return - Math.log(1 - rnd.nextDouble()) / param;
+		}
+		
+		public double[][] getCorrelation(){//相関係数行列の作成
+			//ArrayListから配列へ変換
+			double elapsequeue [][] = new double[timequeue.length][timequeue[0].size()];
+			for(int i = 0; i < k; i++) {
+				for(int j = 0; j < timequeue[0].size(); j++) {
+					elapsequeue[i][j] = timequeue[i].get(j);
+				}
+			}
+			//相関係数行列作成
+			double correlation[][] = new double[k][k];
+			for(int i = 0; i < k; i++) {
+				for(int j = 0; j < k; j++) {
+					correlation[i][j] = new PearsonsCorrelation().correlation(elapsequeue[i], elapsequeue[j]);
+				}
+			}
+			return correlation;
 		}
 	
 }
