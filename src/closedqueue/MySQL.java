@@ -129,5 +129,40 @@ public class MySQL {
             	e.printStackTrace();
 		}
 	}
-
+	
+	public void insertTimerate(double timerate[][]) {
+		System.out.println("Timerate : Insert開始");
+		try{
+    			for(int i = 0; i < timerate.length; i++){
+    				StringBuffer buf = new StringBuffer();
+    				buf.append("INSERT INTO timerates(simulation_id, n, n_node, value) VALUES");
+            			for(int j = 0; j < timerate[i].length; j++) {
+            				if(j == timerate[i].length -1)
+            					buf.append("("+simulation_id+","+i+","+j+","+timerate[i][j]+")");
+            				else buf.append("("+simulation_id+","+i+","+j+","+timerate[i][j]+"),");
+            			}
+            			String sql = buf.toString();
+            			stmt.execute (sql);
+            			System.out.println("Insert完了 : " + (i+1) +"/" +timerate.length);
+    			}
+		}
+		catch (SQLException e) {
+            	e.printStackTrace();
+		}
+	}
+	
+	public void insertSimulation(int setting_id, int facility_num, int time, int way_id) {
+		System.out.println("Simulation : Insert開始");
+		StringBuffer buf = new StringBuffer();
+		buf.append("INSERT INTO simulations(setting_id, facility_num, time, way_id) VALUES");
+		try{
+			buf.append("("+setting_id+","+facility_num+","+time+","+way_id+")");
+       		String sql = buf.toString();
+    			stmt.execute (sql);
+    			System.out.println("Simulation Insert完了");
+		}
+		catch (SQLException e) {
+            	e.printStackTrace();
+		}
+	}
 }

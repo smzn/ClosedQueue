@@ -37,7 +37,7 @@ public class ClosedQueue_simulation {
 		for(int i = 0; i < queuelength.length; i++) queuelength[i] = new ArrayList<Integer>();
 		for(int i = 0; i < timequeue.length; i++) timequeue[i] = new ArrayList<Integer>();
 		timerate = new double[k][n+1]; //0人の場合も入る
-		timerate2 = new double[n][k+1];
+		timerate2 = new double[n+1][k+1]; //0人からn人のn+1, 0拠点からk拠点でのk+1拠点
 		correlation = new double[k][k];
 	}
 	
@@ -77,9 +77,9 @@ public class ClosedQueue_simulation {
 				timerate[i][queue[i]] += mini_service;
 			}
 			//各ノードでの人数割合(同時滞在人数) 
-			for(int i = 0; i < n; i++) {
+			for(int i = 0; i < n+1; i++) { //0人からn人までのn+1
 				int totalnumber = 0;
-				for(int j = 0; j < queue.length; j++) {
+				for(int j = 0; j < queue.length; j++) { //0拠点からk拠点
 					if(queue[j] == i) totalnumber ++;
 				}
 				timerate2[i][totalnumber] += mini_service;
@@ -207,10 +207,12 @@ public class ClosedQueue_simulation {
 		
 		public void getMySQL(double result[][]) {
 			MySQL mysql = new MySQL(node_index);
+			mysql.insertSimulation(168,node_index.length,time,1);//setting_id,facility_num,time,way_id
 			mysql.insertQueue(result);
 			mysql.insertCorrelation(correlation);
-			//mysql.insertEventtime(eventtime);
-			//mysql.insertTimequeue(timequeue);
+			mysql.insertTimerate(timerate2);
+			mysql.insertEventtime(eventtime);
+			mysql.insertTimequeue(timequeue);
 			
 			
 		}
