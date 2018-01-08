@@ -1,13 +1,51 @@
 package closedqueue;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 
 public class ClosedQueue_main {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		int N = 100, K = 12;
+		double [][]d = new double[K][K];
+		double p[] = new double[K];
+		double mu[] = new double[K];
+		
+		//CSVから取り込み
+		try {
+		      File f = new File("csv/distance.csv");
+		      BufferedReader br = new BufferedReader(new FileReader(f));
+		 
+		      String[][] data = new String[K][K+2];
+		      String line = br.readLine();
+		      for (int row = 0; line != null; row++) {
+		        data[row] = line.split(",", 0);
+		        line = br.readLine();
+		      }
+		      br.close();
+
+		      // CSVから読み込んだ配列の中身を表示
+		      for(int row = 0; row < data.length; row++) {
+		        for(int col = 0; col < data[0].length; col++) {
+		        		if( col < data[0].length -2 ) {
+		        			d[row][col] = Double.parseDouble(data[row][col]);
+		        		}
+		        		else if (col == data[0].length -2) p[row] = Double.parseDouble(data[row][col]);
+		        		else if (col == data[0].length -1) mu[row] = Double.parseDouble(data[row][col]);
+		        }
+		      } 
+
+		    } catch (IOException e) {
+		      System.out.println(e);
+		    }
+		//CSVから取り込みここまで
 		
 		//拠点間距離表、今回の利用ノード14,15,17,18,21,24,27,29,31,34,	35,41, ID = 168, 目的関数値99.858376656572
+		/*
 		double d[][] = { {1000000,99.60499955,75.18117736,224.522541,281.1047231,247.6783163,107.5549967,471.3517314,412.6888475,619.2591876,566.5879236,751.5004453},
 			{99.60499955,1000000,99.70042189,145.6596134,285.1922216,212.00125,151.1771663,441.2260804,394.7281194,588.9744559,524.8301389,708.8082316},
 			{75.18117736,99.70042189,1000000,172.5896787,209.0737091,174.1770175,51.51387248,396.1967615,337.831538,544.0780515,492.1199131,676.9012699},
@@ -22,13 +60,14 @@ public class ClosedQueue_main {
 			{751.5004453,708.8082316,676.9012699,573.912839,499.4821346,504.4633262,663.3300296,285.6677534,356.9596753,154.4916763,185.0340246,1000000}};
 		double p[] = {5,5,10,5,5,5,5,5,5,10,5,10};
 		double mu[] = {5,5,10,5,5,5,5,5,5,10,5,10};
-		double alpha[] = new double[mu.length],alpha1[] = new double[mu.length];
 		int N = 100, K = 12;
 		//確認用
 		//double d[][] = {{1000,5,8,10,15},{5,1000,3,5,3},{8,3,1000,2,4},{10,5,2,1000,3},{15,3,4,3,1000}};//行を入力
 		//double p[] = {10,15,5,5,5};//拠点人口表
 		//double mu[] = {1,2,2,1,2};//サービス率
-				
+		 */
+		
+		double alpha[] = new double[mu.length],alpha1[] = new double[mu.length];		
 		ClosedQueue_lib clib = new ClosedQueue_lib(1,1,0.5,d,p, mu, N, K);
 		double f[][] = new double [p.length][p.length];
 		f = clib.calcGravity(); //fは推移確率行列
@@ -85,6 +124,7 @@ public class ClosedQueue_main {
 		
 		//理論値
 		System.out.println("重力モデルパラメタ" +Arrays.deepToString(d));
+		System.out.println("人気度" +Arrays.toString(p));
 		System.out.println("サービス率" +Arrays.toString(mu));
 		System.out.println("推移確率行列" +Arrays.deepToString(f));
 		System.out.println("トラフィック方程式解" +Arrays.toString(alpha1));
