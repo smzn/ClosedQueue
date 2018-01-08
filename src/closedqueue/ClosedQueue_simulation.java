@@ -9,7 +9,7 @@ import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 public class ClosedQueue_simulation {
 	
 	private double p[][], mu[]; //推移確率行列(今回は重力モデルから)
-	private int time;
+	private int time, node_index[];
 	Random rnd = new Random();
 	private int k; //ノード数
 	private int n; //系内の客数
@@ -18,14 +18,16 @@ public class ClosedQueue_simulation {
 	ArrayList<Integer> queuelength[];
 	private double timerate[][];
 	private double timerate2[][];
+	private double correlation[][];
 	ArrayList<Integer> timequeue[];
 	
-	public ClosedQueue_simulation(double[][] p, int time, int k, int n, double[] mu) {
+	public ClosedQueue_simulation(double[][] p, int time, int k, int n, double[] mu, int[] node_index) {
 		this.p = p;
 		this.time = time;
 		this.k = k;
 		this.n = n;
 		this.mu = mu;
+		this.node_index = node_index;
 		eventtime = new ArrayList[k];
 		event = new ArrayList[k];
 		queuelength = new ArrayList[k];
@@ -36,10 +38,12 @@ public class ClosedQueue_simulation {
 		for(int i = 0; i < timequeue.length; i++) timequeue[i] = new ArrayList<Integer>();
 		timerate = new double[k][n+1]; //0人の場合も入る
 		timerate2 = new double[n][k+1];
+		correlation = new double[k][k];
 	}
 	
 	public double[][] getSimulation() {
 		double service[] = new double[k];
+		double result[][] = new double[2][k];
 		int queue[] = new int[k]; //各ノードのサービス中を含むキューの長さ
 		double elapse = 0;
 		for(int i = 0; i < this.n; i++) {
@@ -51,7 +55,6 @@ public class ClosedQueue_simulation {
 		service[0] = this.getExponential(mu[0]); //先頭客のサービス時間設定
 		double total_queue[] = new double[k]; //各ノードの延べ系内人数
 		double total_queuelength[] = new double[k]; //待ち人数
-		double result[][] = new double[2][k];
 		
 		while(elapse < time) {
 			double mini_service = 100000; //最小のサービス時間
@@ -112,8 +115,8 @@ public class ClosedQueue_simulation {
 		}
 		
 		for(int i = 0; i < k; i++) {
-			result[0][i] = total_queue[i] / time;
-			result[1][i] = total_queuelength[i] / time;
+			result[0][i] = total_queue[i] / time; //平均系内人数
+			result[1][i] = total_queuelength[i] / time; //平均待ち人数
 		}
 		return result;
 		
@@ -194,13 +197,22 @@ public class ClosedQueue_simulation {
 				}
 			}
 			//相関係数行列作成
-			double correlation[][] = new double[k][k];
 			for(int i = 0; i < k; i++) {
 				for(int j = 0; j < k; j++) {
 					correlation[i][j] = new PearsonsCorrelation().correlation(elapsequeue[i], elapsequeue[j]);
 				}
 			}
 			return correlation;
+		}
+		
+		public void getMySQL(double result[][]) {
+			MySQL mysql = new MySQL(node_index);
+			mysql.insertQueue(result);
+			mysql.insertCorrelation(correlation);
+			//mysql.insertEventtime(eventtime);
+			//mysql.insertTimequeue(timequeue);
+			
+			
 		}
 	
 }
