@@ -136,7 +136,7 @@ public class ClosedQueue_main {
 		System.out.println("理論値 : スループット = " +Arrays.toString(lambda));
 		
 		//Simulation
-		ClosedQueue_simulation qsim = new ClosedQueue_simulation(f, 100000, f.length, N, mu, node_index);
+		ClosedQueue_simulation qsim = new ClosedQueue_simulation(f, 10000, f.length, N, mu, node_index);
 		double simulation[][] = qsim.getSimulation();
 		double evaluation[][] = qsim.getEvaluation();
 		double result[][] = new double[K][5];
@@ -152,8 +152,12 @@ public class ClosedQueue_main {
 		System.out.println("Simulation : (時間割合) = "+Arrays.deepToString(qsim.getTimerate()));
 		System.out.println("Simulation : (同時時間割合) = "+Arrays.deepToString(qsim.getTimerate2()));
 		System.out.println("Simulation : (相関係数行列) = "+Arrays.deepToString(qsim.getCorrelation()));
-		qsim.getMySQL(result);
+		//qsim.getMySQL(result);
 		System.out.println("Simulation : (MySQL : 実行完了)");
+		
+		Graph graph = new Graph(qsim, node_index);
+		graph.setBounds(5,5,755,455);
+		graph.setVisible(true);
 	}
 
 }
