@@ -212,9 +212,11 @@ public class ClosedQueue_simulation {
 			mysql.insertCorrelation(correlation);
 			mysql.insertTimerate(timerate2);
 			mysql.insertEventtime(eventtime);
-			mysql.insertTimequeue(timequeue);
-			
-			
+			mysql.insertTimequeue(timequeue);	
+		}
+
+		public ArrayList<Integer>[] getTimequeue() {
+			return timequeue;
 		}
 	
 }
