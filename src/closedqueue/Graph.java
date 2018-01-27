@@ -22,11 +22,13 @@ public class Graph extends Frame implements ActionListener,WindowListener{
 		
 		ArrayList<Integer> timequeue[] = qsim.getTimequeue();
 		DefaultCategoryDataset data = new DefaultCategoryDataset();
-		for(int i = 0; i < 20000; i++) {
-			data.addValue(timequeue[0].get(i), node_index[0]+"", i+"");
-			data.addValue(timequeue[1].get(i), node_index[1]+"", i+"");
-			data.addValue(timequeue[2].get(i), node_index[2]+"", i+"");
-			data.addValue(timequeue[3].get(i), node_index[3]+"", i+"");
+		//for(int i = 0; i < timequeue[0].size(); i++) {
+		for(int i = 0; i < 10000; i++) {
+			for(int j = 0; j < node_index.length; j++) data.addValue(timequeue[j].get(i), node_index[j]+"", i+"");
+			//data.addValue(timequeue[0].get(i), node_index[0]+"", i+"");
+			//data.addValue(timequeue[1].get(i), node_index[1]+"", i+"");
+			//data.addValue(timequeue[4].get(i), node_index[4]+"", i+"");
+			//data.addValue(timequeue[7].get(i), node_index[7]+"", i+"");
 			//data.addValue(timequeue[4].get(i), node_index[4]+"", i+"");
 			//data.addValue(timequeue[5].get(i), node_index[5]+"", i+"");
 		}

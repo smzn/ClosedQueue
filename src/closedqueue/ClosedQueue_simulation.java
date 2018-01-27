@@ -18,8 +18,11 @@ public class ClosedQueue_simulation {
 	ArrayList<Integer> queuelength[];
 	private double timerate[][];
 	private double timerate2[][];
+	private double timeratecap[]; //キャパを超えている時間割合
 	private double correlation[][];
 	ArrayList<Integer> timequeue[];
+	private int capacity; //当面キャパは全ノードで一緒
+	private double maxlengthtime[];
 	
 	public ClosedQueue_simulation(double[][] p, int time, int k, int n, double[] mu, int[] node_index) {
 		this.p = p;
@@ -38,7 +41,10 @@ public class ClosedQueue_simulation {
 		for(int i = 0; i < timequeue.length; i++) timequeue[i] = new ArrayList<Integer>();
 		timerate = new double[k][n+1]; //0人の場合も入る
 		timerate2 = new double[n+1][k+1]; //0人からn人のn+1, 0拠点からk拠点でのk+1拠点
+		timeratecap = new double[k+1]; //timeratecap[i]キャパを超えたノード数がiの延べ時間、ノード数0-k(k+1個)
 		correlation = new double[k][k];
+		capacity = 10; //当面キャパシティは10
+		maxlengthtime = new double[k];
 	}
 	
 	public double[][] getSimulation() {
@@ -46,13 +52,21 @@ public class ClosedQueue_simulation {
 		double result[][] = new double[2][k];
 		int queue[] = new int[k]; //各ノードのサービス中を含むキューの長さ
 		double elapse = 0;
-		for(int i = 0; i < this.n; i++) {
+		//スタート時に2つのノードに分散
+		for(int i = 0; i < this.n / 2; i++) {
+			//ノード0用
 			event[0].add("arrival");
 			queuelength[0].add(queue[0]);
 			eventtime[0].add(elapse); //(移動時間0)
 			queue[0]++; //最初はノード0にn人いるとする
+			//ノードk用
+			event[k-1].add("arrival");
+			queuelength[k-1].add(queue[0]);
+			eventtime[k-1].add(elapse); //(移動時間0)
+			queue[k-1]++; 
 		}
 		service[0] = this.getExponential(mu[0]); //先頭客のサービス時間設定
+		service[k-1] = this.getExponential(mu[k-1]); //先頭客のサービス時間設定
 		double total_queue[] = new double[k]; //各ノードの延べ系内人数
 		double total_queuelength[] = new double[k]; //待ち人数
 		
@@ -84,6 +98,13 @@ public class ClosedQueue_simulation {
 				}
 				timerate2[i][totalnumber] += mini_service;
 			}
+			//キャパを超えるノードの割合
+			int totalnumber = 0; //ノード数
+			for(int i = 0; i < k; i++) {
+				if( queue[i] > capacity ) totalnumber ++;  
+			}
+			timeratecap[totalnumber] += mini_service;
+			
 			//イベント時間での待ち人数を登録
 			for(int i = 0; i < k; i++) timequeue[i].add(queue[i]);
 			
@@ -128,9 +149,14 @@ public class ClosedQueue_simulation {
 		for(int k = 0; k < this.k; k++) {
 			for(int i = 0; i < eventtime[k].size(); i++) {
 				//System.out.println("Eventtime[" + k + "] : "+eventtime[k].get(i)+" Event : "+ event[k].get(i)+" Queuelength : "+queuelength[k].get(i));
-				if( maxLength[k] < queuelength[k].get(i) ) maxLength[k] = queuelength[k].get(i);
+				if( maxLength[k] < queuelength[k].get(i) ) {
+					maxLength[k] = queuelength[k].get(i);
+					maxlengthtime[k] = eventtime[k].get(i);
+				}
 			}
 		}
+		for(int i = 0; i < maxlengthtime.length; i++) maxlengthtime[i] /= time;
+		//System.out.println("Simulation : (MaxLengthTime) = "+Arrays.toString(maxlengthtime));
 		
 		int arrival_number[] = new int[k];
 		int departure_number[] = new int[k];
@@ -167,7 +193,7 @@ public class ClosedQueue_simulation {
 		return result;
 	}
 	
-	public double[][] getTimerate() {
+	public double[][] getTimerate() { //自分のノードでの時間割合
 		for(int k = 0; k < this.k; k++) {
 			for(int i = 0; i< timerate[k].length; i++) timerate[k][i] /= time ;
 			for(int i = 0; i< timerate[k].length; i++) timerate[k][i] *= 100 ;
@@ -175,12 +201,18 @@ public class ClosedQueue_simulation {
 		return timerate;
 	}
 		
-	public double[][] getTimerate2() {
+	public double[][] getTimerate2() { //全ノードでの時間割合
 		for(int n = 0; n < this.n; n++) {
 			for(int i = 0; i< timerate2[n].length; i++) timerate2[n][i] /= time ;
 			for(int i = 0; i< timerate2[n].length; i++) timerate2[n][i] *= 100 ;
 		}
 		return timerate2;
+	}
+	
+	public double[] getTimeratecap() {
+		for(int i = 0; i < k; i++) timeratecap[i] /= time;
+		for(int i = 0; i < k; i++) timeratecap[i] *= 100;
+		return timeratecap;
 	}
 
 		//指数乱数発生
@@ -217,6 +249,10 @@ public class ClosedQueue_simulation {
 
 		public ArrayList<Integer>[] getTimequeue() {
 			return timequeue;
+		}
+
+		public double[] getMaxlengthtime() {
+			return maxlengthtime;
 		}
 	
 }

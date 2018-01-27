@@ -1,9 +1,12 @@
 package closedqueue;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 
 public class ClosedQueue_main {
@@ -16,35 +19,8 @@ public class ClosedQueue_main {
 		double mu[] = new double[K];
 		int node_index[] = new int[K];
 		
-		//CSVから取り込み
-		try {
-		      File f = new File("csv/distance.csv");
-		      BufferedReader br = new BufferedReader(new FileReader(f));
-		 
-		      String[][] data = new String[K][K+3];
-		      String line = br.readLine();
-		      for (int row = 0; line != null; row++) {
-		        data[row] = line.split(",", 0);
-		        line = br.readLine();
-		      }
-		      br.close();
-
-		      // CSVから読み込んだ配列の中身を表示
-		      for(int row = 0; row < data.length; row++) {
-		        for(int col = 0; col < data[0].length; col++) {
-		        		if( col < data[0].length -3 ) {
-		        			d[row][col] = Double.parseDouble(data[row][col]);
-		        		}
-		        		else if (col == data[0].length -3) p[row] = Double.parseDouble(data[row][col]);
-		        		else if (col == data[0].length -2) mu[row] = Double.parseDouble(data[row][col]);
-		        		else if (col == data[0].length -1) node_index[row] = Integer.parseInt(data[row][col]);
-		        }
-		      } 
-
-		    } catch (IOException e) {
-		      System.out.println(e);
-		    }
-		//CSVから取り込みここまで
+		ClosedQueue_main cmain = new ClosedQueue_main();
+		cmain.getCSV2("csv/distance.csv", K, K+3, d, p, mu, node_index);
 		
 		//拠点間距離表、今回の利用ノード14,15,17,18,21,24,27,29,31,34,	35,41, ID = 168, 目的関数値99.858376656572
 		/*
@@ -136,7 +112,7 @@ public class ClosedQueue_main {
 		System.out.println("理論値 : スループット = " +Arrays.toString(lambda));
 		
 		//Simulation
-		ClosedQueue_simulation qsim = new ClosedQueue_simulation(f, 10000, f.length, N, mu, node_index);
+		ClosedQueue_simulation qsim = new ClosedQueue_simulation(f, 70, f.length, N, mu, node_index);
 		double simulation[][] = qsim.getSimulation();
 		double evaluation[][] = qsim.getEvaluation();
 		double result[][] = new double[K][5];
@@ -149,15 +125,76 @@ public class ClosedQueue_main {
 		System.out.println("Simulation : (平均系内人数, 平均待ち人数) = "+Arrays.deepToString(simulation));
 		System.out.println("Simulation : (系内時間,系内時間分散,最大待ち人数) = "+Arrays.deepToString(evaluation));
 		System.out.println("Simulation : (平均系内人数, 平均待ち人数,系内時間,系内時間分散,最大待ち人数) = "+Arrays.deepToString(result));
+		System.out.println("Simulation : (MaxLengthTime) = "+Arrays.toString(qsim.getMaxlengthtime()));
 		System.out.println("Simulation : (時間割合) = "+Arrays.deepToString(qsim.getTimerate()));
 		System.out.println("Simulation : (同時時間割合) = "+Arrays.deepToString(qsim.getTimerate2()));
+		double[] timeratecap = qsim.getTimeratecap();
+		System.out.println("Simulation : (Cap越え時間割合) = "+Arrays.toString(timeratecap));
 		System.out.println("Simulation : (相関係数行列) = "+Arrays.deepToString(qsim.getCorrelation()));
 		//qsim.getMySQL(result);
 		System.out.println("Simulation : (MySQL : 実行完了)");
 		
-		Graph graph = new Graph(qsim, node_index);
-		graph.setBounds(5,5,755,455);
-		graph.setVisible(true);
+		//グラフ出力
+		//Graph graph = new Graph(qsim, node_index);
+		//graph.setBounds(5,5,755,455);
+		//graph.setVisible(true);
+		
+		cmain.writeCSV("csv/maxlengthtime.csv", qsim.getMaxlengthtime());
+		cmain.writeCSV("csv/capaovertime.csv", timeratecap);
+	}
+	
+	//複数種類のデータを一度に取り込む場合
+	public void getCSV2(String path, int row, int column, double[][] d, double[] p, double[] mu, int[] node_index ) {
+		//CSVから取り込み
+		try {
+			File f = new File(path);
+			BufferedReader br = new BufferedReader(new FileReader(f));
+				 
+			String[][] data = new String[row][column]; //今回は[K][K+3]
+			String line = br.readLine();
+			for (int i = 0; line != null; i++) {
+				data[i] = line.split(",", 0);
+				line = br.readLine();
+			}
+			br.close();
+
+			// CSVから読み込んだ配列の中身を処理
+			for(int i = 0; i < data.length; i++) {
+				for(int j = 0; j < data[0].length; j++) {
+					if( j < data[0].length -3 ) {
+						d[i][j] = Double.parseDouble(data[i][j]);
+				    }
+				    else if (j == data[0].length -3) p[i] = Double.parseDouble(data[i][j]);
+				    else if (j == data[0].length -2) mu[i] = Double.parseDouble(data[i][j]);
+				    else if (j == data[0].length -1) node_index[i] = Integer.parseInt(data[i][j]);
+				}
+			} 
+
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+		//CSVから取り込みここまで	
+	}
+	
+	public void writeCSV(String path, double data[]) { //１次元情報の書き込み
+		try {
+			FileWriter fw = new FileWriter(path, true); //true:追記、false:上書き
+			PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
+			//内容を指定する
+			for(int i = 0; i < data.length; i++) {
+				pw.print(data[i]);
+				pw.print(",");
+			}
+            pw.println();
+            //ファイルに書き出す
+            pw.close();
+
+            //終了メッセージを画面に出力する
+            System.out.println("出力完了 : "+path);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
